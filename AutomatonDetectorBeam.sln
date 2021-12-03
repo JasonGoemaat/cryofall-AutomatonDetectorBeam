@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31911.196
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutomatonDetectorBeam", "AutomatonDetectorBeam.csproj", "{D6BD7B74-FA41-4B2C-9A1A-E08E06AA3604}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AtomicTorch.CBND.CoreMod", "..\..\..\Core\Core.cpk\AtomicTorch.CBND.CoreMod.csproj", "{88F5256C-54CD-4C6A-9608-5EDD8AC32A52}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Automaton", "..\Automaton\Automaton.csproj", "{689D63CC-0D2C-43DE-9EC1-1797ADA94166}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_LibsAsProjects|Any CPU = Debug_LibsAsProjects|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D6BD7B74-FA41-4B2C-9A1A-E08E06AA3604}.Debug_LibsAsProjects|Any CPU.ActiveCfg = Debug_LibsAsProjects|Any CPU
+		{D6BD7B74-FA41-4B2C-9A1A-E08E06AA3604}.Debug_LibsAsProjects|Any CPU.Build.0 = Debug_LibsAsProjects|Any CPU
+		{D6BD7B74-FA41-4B2C-9A1A-E08E06AA3604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6BD7B74-FA41-4B2C-9A1A-E08E06AA3604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88F5256C-54CD-4C6A-9608-5EDD8AC32A52}.Debug_LibsAsProjects|Any CPU.ActiveCfg = Debug_LibsAsProjects|Any CPU
+		{88F5256C-54CD-4C6A-9608-5EDD8AC32A52}.Debug_LibsAsProjects|Any CPU.Build.0 = Debug_LibsAsProjects|Any CPU
+		{88F5256C-54CD-4C6A-9608-5EDD8AC32A52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88F5256C-54CD-4C6A-9608-5EDD8AC32A52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{689D63CC-0D2C-43DE-9EC1-1797ADA94166}.Debug_LibsAsProjects|Any CPU.ActiveCfg = Debug_LibsAsProjects|Any CPU
+		{689D63CC-0D2C-43DE-9EC1-1797ADA94166}.Debug_LibsAsProjects|Any CPU.Build.0 = Debug_LibsAsProjects|Any CPU
+		{689D63CC-0D2C-43DE-9EC1-1797ADA94166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{689D63CC-0D2C-43DE-9EC1-1797ADA94166}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C5846C68-1B0A-475C-A09F-3BFBF4994B09}
+	EndGlobalSection
+EndGlobal
