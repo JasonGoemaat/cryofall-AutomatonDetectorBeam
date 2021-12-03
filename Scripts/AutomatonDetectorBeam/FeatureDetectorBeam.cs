@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Media;
 
 namespace AutomatonDetectorBeam.Scripts
 {
@@ -30,6 +31,38 @@ namespace AutomatonDetectorBeam.Scripts
         public List<IProtoEntity> ObjectList { get; set; }
 
         public List<IProtoEntity> EnabledObjectList { get; set; }
+
+        public Color BeamColor { get; set; }
+
+        private double hue;
+
+        public double Hue {
+            get
+            {
+                return hue;
+            }
+            set
+            {
+                hue = value;
+                var hsl = new HslColor(hue * 359.9, 1, 0.5, 1);
+                BeamColor = hsl.ToRgb();
+                Api.Logger.Important($"H {hue}, S 1.0, L 0.5, A 1.0 is RGBA {BeamColor.R}, {BeamColor.G}, {BeamColor.B}, {BeamColor.A}");
+            }
+        }
+
+        private double beamWidth;
+
+        public double BeamWidth
+        {
+            get 
+            {
+                return beamWidth;
+            }
+            set
+            {
+                beamWidth = value;
+            }
+        }
 
         protected override void PrepareFeature(List<IProtoEntity> entityList, List<IProtoEntity> requiredItemList)
         {
@@ -60,7 +93,23 @@ namespace AutomatonDetectorBeam.Scripts
         public override void PrepareOptions(SettingsFeature settingsFeature)
         {
             AddOptionIsEnabled(settingsFeature);
+
+            Options.Add(new OptionSlider(
+                parentSettings: settingsFeature,
+                id: "Hue",
+                label: "Hue",
+                defaultValue: 0.0,
+                valueChangedCallback: value => Hue = value));
+
+            Options.Add(new OptionSlider(
+                parentSettings: settingsFeature,
+                id: "BeamWidth",
+                label: "Beam Width",
+                defaultValue: 1.0,
+                valueChangedCallback: value => BeamWidth = value));
+
             Options.Add(new OptionSeparator());
+
             Options.Add(new OptionEntityList(
                 parentSettings: settingsFeature,
                 id: "DetectorBeamObjectList",

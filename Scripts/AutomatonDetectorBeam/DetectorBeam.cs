@@ -100,7 +100,7 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
             var distance = (beamEndPosition - sourcePosition).Length;
             double beamOpacity = 1.0;
 
-            var color = DefaultColor;
+            var color = FeatureDetectorBeam.Instance.BeamColor;
             sourcePosition = player.Position;
 
             this.componentBeam.IsEnabled = true;
@@ -108,7 +108,7 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
                 sourcePosition: sourcePosition,
                 sourcePositionOffset: 0.1,
                 targetPosition: beamEndPosition,
-                beamWidth: 1.0,
+                beamWidth: FeatureDetectorBeam.Instance.BeamWidth,
                 beamColor: color,
                 spotColor: color,
                 beamOpacity: beamOpacity,
