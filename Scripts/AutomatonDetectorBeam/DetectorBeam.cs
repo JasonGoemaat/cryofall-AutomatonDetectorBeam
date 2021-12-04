@@ -19,33 +19,17 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
 {
     public class DetectorBeam : ClientComponent
     {
-        private Color DefaultColor = Color.FromArgb(255, 255, 0, 0);
+        public Color Color { get; set; }
+
+        public double Width { get; set; }
 
         private ComponentBeam componentBeam;
 
-        public static Vector2D? TargetPosition = null;
-
-        private static DetectorBeam Instance;
-
-        public static DetectorBeam GetInstance()
-        {
-            if (Instance == null)
-            {
-                var character = ClientCurrentCharacterHelper.Character;
-                if (character != null)
-                {
-
-                    var sceneObject = character.ClientSceneObject;
-                    Instance = sceneObject.AddComponent<DetectorBeam>();
-                }
-            }
-
-            return Instance;
-        }
+        public Vector2D? TargetPosition { get; set; }
 
         public DetectorBeam() : base(isLateUpdateEnabled: true)
         {
-            // Api.Logger.Important($"TestComponent: Component being created()");
+            Api.Logger.Important($"DetectorBeam: Component being created");
         }
 
         protected override void OnDisable()
@@ -84,7 +68,11 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
             if (TargetPosition == null)
             {
                 // no target, disable beam
-                this.componentBeam.IsEnabled = false;
+                if (this.componentBeam.IsEnabled)
+                {
+                    this.componentBeam.IsEnabled = false;
+                    Api.Logger.Info("Disabling Beam");
+                }
                 return;
             }
 
@@ -98,22 +86,22 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
 
             // fade-out if too close to prevent visual glitches
             var distance = (beamEndPosition - sourcePosition).Length;
-            double beamOpacity = 1.0;
 
-            var color = FeatureDetectorBeam.Instance.BeamColor;
             sourcePosition = player.Position;
 
+            if (!this.componentBeam.IsEnabled && TargetPosition != null)
+            {
+                var tp = TargetPosition ?? Vector2D.Zero;
+                Api.Logger.Warning($"Enabling Beam to {tp.X}, {tp.Y}");
+            }
             this.componentBeam.IsEnabled = true;
+
             this.componentBeam.Refresh(
                 sourcePosition: sourcePosition,
                 sourcePositionOffset: 0.1,
                 targetPosition: beamEndPosition,
-                beamWidth: FeatureDetectorBeam.Instance.BeamWidth,
-                beamColor: color,
-                spotColor: color,
-                beamOpacity: beamOpacity,
-                // determine whether the beam should end with a bright spot (when pointing on something)
-                hasTarget: false);
+                color: this.Color,
+                width: this.Width);
         }
 
         private static void CastLine(
@@ -142,16 +130,11 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
 
         private class ComponentBeam : ClientComponent
         {
-            private const double SpotScale = 4.0;
-
             private static readonly EffectResource BeamEffectResource
                 = new("AdditiveColorEffect");
 
             private static readonly TextureResource TextureResourceBeam
                 = new("FX/WeaponTraces/BeamLaser.png");
-
-            private static readonly TextureResource TextureResourceSpot
-                = new("FX/Special/LaserSightSpot.png");
 
             private readonly RenderingMaterial renderingMaterial
                 = RenderingMaterial.Create(BeamEffectResource);
@@ -162,19 +145,11 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
                 Vector2D sourcePosition,
                 double sourcePositionOffset,
                 Vector2D targetPosition,
-                double beamWidth,
-                Color beamColor,
-                Color spotColor,
-                double beamOpacity,
-                bool hasTarget)
+                Color color,
+                double width)
             {
-                beamColor = Color.FromArgb((byte)(beamOpacity * beamColor.A),
-                                           beamColor.R,
-                                           beamColor.G,
-                                           beamColor.B);
-
-                this.renderingMaterial.EffectParameters.Set("ColorAdditive", beamColor);
-                this.spriteRendererLine.Color = beamColor;
+                this.renderingMaterial.EffectParameters.Set("ColorAdditive", color);
+                this.spriteRendererLine.Color = color;
 
                 var deltaPos = targetPosition - sourcePosition;
 
@@ -188,7 +163,7 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
                 this.spriteRendererLine.PositionOffset = sourcePosition - sceneObjectPosition;
                 this.spriteRendererLine.RotationAngleRad = (float)angleRad;
                 this.spriteRendererLine.Size = (ScriptingConstants.TileSizeVirtualPixels * deltaPos.Length,
-                                                ScriptingConstants.TileSizeVirtualPixels * beamWidth);
+                                                ScriptingConstants.TileSizeVirtualPixels * width);
             }
 
             protected override void OnDisable()

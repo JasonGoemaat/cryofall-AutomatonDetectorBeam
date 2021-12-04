@@ -64,63 +64,62 @@ namespace AutomatonDetectorBeam.Scripts
             }
         }
 
+        BeamCategory bcSpecial;
+        BeamCategory bcCrates;
+        BeamCategory bcHerbs;
+        BeamCategory bcOther;
+
+        List<BeamCategory> beamCategories;
+
         protected override void PrepareFeature(List<IProtoEntity> entityList, List<IProtoEntity> requiredItemList)
         {
-            ObjectList = new List<IProtoEntity>();
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectMineralPragmiumSource>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectMineralPragmiumNode>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectSpaceDebris>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectMeteorite>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectMineralCoal>());
+            beamCategories = new List<BeamCategory>();
 
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectLootCrateFood>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectLootCrateHightech>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectLootCrateIndustrial>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectLootCrateMedical>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectLootCrateMilitary>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectLootCrateSupply>());
+            bcHerbs = new BeamCategory("Herbs", hue: 0.33); // green
+            bcHerbs.Add<ObjectSmallHerbGreen>();
+            bcHerbs.Add<ObjectSmallHerbRed>();
+            bcHerbs.Add<ObjectSmallHerbPurple>();
+            bcHerbs.Add<ObjectSmallHerbBlue>();
+            beamCategories.Add(bcHerbs);
 
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectSmallHerbPurple>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectSmallHerbRed>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectSmallHerbGreen>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectSmallHerbBlue>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectSmallMushroomPennyBun>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectSmallMushroomPink>());
-            ObjectList.AddRange(Api.FindProtoEntities<ObjectSmallMushroomRust>());
+            bcSpecial = new BeamCategory("Special", hue: 0.66); // blue
+            bcSpecial.Add<ObjectMineralPragmiumSource>();
+            bcSpecial.Add<ObjectMineralPragmiumNode>();
+            bcSpecial.Add<ObjectSpaceDebris>();
+            bcSpecial.Add<ObjectMeteorite>();
+            beamCategories.Add(bcSpecial);
+
+            bcCrates = new BeamCategory("Crates", hue: 0.0); // red
+            bcCrates.Add<ObjectLootCrateFood>();
+            bcCrates.Add<ObjectLootCrateHightech>();
+            bcCrates.Add<ObjectLootCrateIndustrial>();
+            bcCrates.Add<ObjectLootCrateMedical>();
+            bcCrates.Add<ObjectLootCrateMilitary>();
+            bcCrates.Add<ObjectLootCrateSupply>();
+            beamCategories.Add(bcCrates);
+
+            bcOther = new BeamCategory("Other", hue: 0.15); // yellow
+            bcOther.Add<ObjectSmallMushroomPennyBun>();
+            bcOther.Add<ObjectSmallMushroomRust>();
+            bcOther.Add<ObjectSmallMushroomPink>();
+            beamCategories.Add(bcOther);
         }
-
 
         public override void PrepareOptions(SettingsFeature settingsFeature)
         {
             AddOptionIsEnabled(settingsFeature);
 
-            Options.Add(new OptionSlider(
-                parentSettings: settingsFeature,
-                id: "Hue",
-                label: "Hue",
-                defaultValue: 0.0,
-                valueChangedCallback: value => Hue = value));
-
-            Options.Add(new OptionSlider(
-                parentSettings: settingsFeature,
-                id: "BeamWidth",
-                label: "Beam Width",
-                defaultValue: 1.0,
-                valueChangedCallback: value => BeamWidth = value));
-
             Options.Add(new OptionSeparator());
 
-            Options.Add(new OptionEntityList(
-                parentSettings: settingsFeature,
-                id: "DetectorBeamObjectList",
-                entityList: ObjectList.OrderBy(entity => entity.Id),
-                defaultEnabledList: new List<string>(),
-                onEnabledListChanged: enabledList => EnabledObjectList = enabledList));
-        }
+            foreach (var bc in beamCategories)
+            {
+                bc.PrepareEnabledOption(Options, settingsFeature);
+            }
 
-        private bool IsValidObject(IStaticWorldObject staticWorldObject)
-        {
-            return EnabledObjectList.Contains(staticWorldObject.ProtoStaticWorldObject);
+            foreach (var bc in beamCategories)
+            {
+                bc.PrepareOptions(Options, settingsFeature);
+            }
         }
 
         /// <summary>
@@ -133,49 +132,42 @@ namespace AutomatonDetectorBeam.Scripts
                 return;
             }
 
-            var component = DetectorBeam.GetInstance();
-            if (component == null)
+
+            foreach (var bc in beamCategories)
             {
-                return;
+                bc.Execute();
             }
-
-            var target =
-                Api.Client.World.GetStaticWorldObjectsOfProto<IProtoStaticWorldObject>()
-                    .Where(IsValidObject)
-                    .OrderBy(o => CurrentCharacter.Position.DistanceTo(o.TilePosition.ToVector2D()))
-                    .FirstOrDefault();
-
-            if (target == null)
-            {
-                DetectorBeam.TargetPosition = null;
-                return;
-            }
-
-            var player = ClientCurrentCharacterHelper.Character;
-
-            // some magic to better center the location, default location for space debris is like 3 tiles sw
-            var sum = target.OccupiedTilePositions.Aggregate(Vector2D.Zero, (a, b) => a + b.ToVector2D());
-            var targetPosition = new Vector2D(sum.X / target.OccupiedTilePositions.Count(), sum.Y / target.OccupiedTilePositions.Count());
-            targetPosition += new Vector2D(0.5, 0.5); // center of a tile
-
-            DetectorBeam.TargetPosition = targetPosition;
         }
-
 
         /// <summary>
         /// Called by client component every tick.
         /// </summary>
         public override void Update(double deltaTime)
         {
+            timeSinceLastUpdate += deltaTime;
+            if (timeSinceLastUpdate > 5)
+            {
+                Api.Logger.Important($"Update (Important)");
+                foreach (var bc in beamCategories)
+                {
+                    bc.Report();
+                }
+
+                timeSinceLastUpdate = 0;
+            }
         }
 
+        double timeSinceLastUpdate = 0;
 
         /// <summary>
         /// Stop everything.
         /// </summary>
         public override void Stop()
         {
-            DetectorBeam.TargetPosition = null;
+            foreach (var bc in beamCategories)
+            {
+                bc.Stop();
+            }
         }
 
         /// <summary>
