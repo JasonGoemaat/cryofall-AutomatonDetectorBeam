@@ -217,16 +217,16 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
         {
             if (beam == null)
             {
-                Api.Logger.Important($"{Name}: Beam is null");
+                //Api.Logger.Important($"{Name}: Beam is null");
             }
             else
             {
                 if (beam.IsEnabled)
                 {
-                    Api.Logger.Important($"{Name}: Beam is enabled, hooray!");
+                    //Api.Logger.Important($"{Name}: Beam is enabled, hooray!");
                 } else
                 {
-                    Api.Logger.Important($"{Name}: Beam is created, but not enabled, boo!");
+                    //Api.Logger.Important($"{Name}: Beam is created, but not enabled, boo!");
                 }
             }
         }

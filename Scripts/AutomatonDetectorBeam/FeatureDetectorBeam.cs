@@ -139,21 +139,25 @@ namespace AutomatonDetectorBeam.Scripts
             }
         }
 
+        int updateCount = 0;
+
         /// <summary>
         /// Called by client component every tick.
         /// </summary>
         public override void Update(double deltaTime)
         {
             timeSinceLastUpdate += deltaTime;
+            updateCount++;
             if (timeSinceLastUpdate > 5)
             {
-                Api.Logger.Important($"Update (Important)");
+                Api.Logger.Important($"Update - called {updateCount} times");
                 foreach (var bc in beamCategories)
                 {
                     bc.Report();
                 }
 
                 timeSinceLastUpdate = 0;
+                updateCount = 0;
             }
         }
 
