@@ -193,6 +193,8 @@ namespace AutomatonDetectorBeam.Scripts.AutomatonDetectorBeam
             if (a.X != b.X || a.Y != b.Y)
             {
                 Api.Logger.Important($"BeamCategory {Name} changing position from {b.X}, {b.Y} to {a.X}, {a.Y}: really {targetPosition.X}, {targetPosition.Y}");
+                Vector2D offset = targetPosition - character.Position;
+                Api.Logger.Warning($"BeamCategory {Name} found with offset {offset.X}, {offset.Y}");
                 this.beam.TargetPosition = targetPosition;
             }
         }

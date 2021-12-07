@@ -150,7 +150,7 @@ namespace AutomatonDetectorBeam.Scripts
             updateCount++;
             if (timeSinceLastUpdate > 5)
             {
-                Api.Logger.Important($"Update - called {updateCount} times");
+                // Api.Logger.Important($"Update - called {updateCount} times");
                 foreach (var bc in beamCategories)
                 {
                     bc.Report();
